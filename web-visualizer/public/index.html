@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Audible Field</title>
+    <title>Growing Things</title>
     <meta
       name="description"
       content="Interactive browser instrument where simulated materials fall, spread, collide, and shape sound in real time."
@@ -25,7 +25,7 @@
       content="Interactive browser instrument where simulated materials fall, spread, collide, and shape sound in real time."
     />
     <meta name="twitter:image" content="https://audible-field.vercel.app/og-image-2026-10-14.png" />
-    <link rel="stylesheet" href="/styles.css?v=332" />
+    <link rel="stylesheet" href="/styles.css?v=344" />
     <script type="importmap">
       {
         "imports": {
@@ -48,7 +48,7 @@
             <span class="status-sep" aria-hidden="true">•</span>
             <span data-status-pad class="is-off">DualSense</span>
           </p>
-          <h1>Audible Field</h1>
+          <h1>Growing Things</h1>
         </div>
         <div class="top-actions">
           <button
@@ -290,7 +290,7 @@
       <div data-panel="falling-blocks">
         <section class="viz-stage">
           <div class="viz-canvas-wrap">
-            <canvas data-falling-canvas aria-label="Falling Blocks playfield"></canvas>
+            <canvas data-falling-canvas aria-label="Growing Things playfield"></canvas>
             <div class="falling-emit-dock">
               <span class="falling-emit-scale" aria-hidden="true">
                 <span class="falling-emit-clump">
@@ -317,8 +317,8 @@
                 <form method="dialog" class="falling-about-panel">
                   <header class="falling-about-head">
                     <div class="falling-about-title-wrap">
-                      <h2 id="falling-about-title">Falling Blocks</h2>
-                      <a class="falling-about-link" href="https://github.com/skinjester/Audible-Field" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="15 3 21 3 21 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="10" y1="14" x2="21" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>https://github.com/skinjester/Audible-Field</a>
+                      <h2 id="falling-about-title">Growing Things</h2>
+                      <a class="falling-about-link" href="https://github.com/skinjester/Growing-Things" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="15 3 21 3 21 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="10" y1="14" x2="21" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>https://github.com/skinjester/Growing-Things</a>
                     </div>
                     <button type="button" class="falling-icon-btn falling-about-close" aria-label="Close">
                       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -338,6 +338,7 @@
                     <div class="falling-about-nav" data-falling-nav>
                       <div class="tabs" role="tablist" aria-label="Navigation">
                         <button type="button" role="tab" id="falling-nav-tab-mouse" class="falling-about-nav-tab is-mouse" aria-controls="falling-nav-mouse" aria-selected="true"><svg class="falling-about-nav-icon" viewBox="0 0 18 22" aria-hidden="true"><path d="M9 1.5c-4 0-6.5 2.7-6.5 7v5c0 4.1 2.5 7 6.5 7s6.5-2.9 6.5-7v-5c0-4.3-2.5-7-6.5-7Z"/><path d="M9 1.8v6.8M2.8 8.6h12.4"/><path d="M9 3.6v2.2"/></svg><span>Mouse</span></button>
+                        <button type="button" role="tab" id="falling-nav-tab-keyboard" class="falling-about-nav-tab is-keyboard" aria-controls="falling-nav-keyboard" aria-selected="false" tabindex="-1"><svg class="falling-about-nav-icon" viewBox="0 0 24 18" aria-hidden="true"><rect x="1.5" y="3" width="21" height="12" rx="2"/><path d="M5.5 7h.01M9 7h.01M12.5 7h.01M16 7h.01M19 7h.01M5.5 10h.01M19 10h.01M8.5 11.5h7"/></svg><span>Keyboard</span></button>
                         <button type="button" role="tab" id="falling-nav-tab-touch" class="falling-about-nav-tab is-touch" aria-controls="falling-nav-touch" aria-selected="false" tabindex="-1"><svg class="falling-about-nav-icon" viewBox="0 0 18 22" aria-hidden="true"><rect x="3" y="1.5" width="12" height="19" rx="2.2"/><path d="M7.2 4h3.6M7.5 17.8h3"/></svg><span>Touch</span></button>
                         <button type="button" role="tab" id="falling-nav-tab-pad" class="falling-about-nav-tab is-gamepad" aria-controls="falling-nav-pad" aria-selected="false" tabindex="-1"><svg class="falling-about-nav-icon" viewBox="0 0 24 18" aria-hidden="true"><path d="M7.2 3.1h9.6c2.4 0 3.8 1.3 4.5 3.6l1.1 4.2c.7 2.7-.4 4.6-2.4 4.6-1.4 0-2.4-.8-3.4-2.4l-.8-1.2H8.2l-.8 1.2c-1 1.6-2 2.4-3.4 2.4-2 0-3.1-1.9-2.4-4.6l1.1-4.2c.7-2.3 2.1-3.6 4.5-3.6Z"/><path d="M7 6.3v4.2M4.9 8.4h4.2"/><circle cx="16.5" cy="7" r=".8" fill="currentColor" stroke="none"/><circle cx="19" cy="9.4" r=".8" fill="currentColor" stroke="none"/></svg><span>Gamepad</span></button>
                       </div>
@@ -352,11 +353,29 @@
                         </div>
                         <div>
                           <h4>Rotate</h4>
-                          <p>Drag with the middle mouse button to turn the view. <kbd>Shift</kbd> + <span class="falling-about-mouse"><svg viewBox="0 0 14 20" aria-hidden="true"><path d="M7 1.2C3.6 1.2 1.2 3.6 1.2 7.2v6c0 3.4 2.4 5.6 5.8 5.6s5.8-2.2 5.8-5.6v-6C12.8 3.6 10.4 1.2 7 1.2z" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 1.6V8.2M1.6 8.2h10.8" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7.6 2.5C9.7 2.8 11.3 4.4 11.4 7.3H7.6z" fill="currentColor"/></svg>RMB</span> also turns it.</p>
+                          <p>Drag with the middle mouse button to turn the view.</p>
                         </div>
                         <div>
-                          <h4>Emit and emitter size</h4>
-                          <p>Drag with <span class="falling-about-mouse"><svg viewBox="0 0 14 20" aria-hidden="true"><path d="M7 1.2C3.6 1.2 1.2 3.6 1.2 7.2v6c0 3.4 2.4 5.6 5.8 5.6s5.8-2.2 5.8-5.6v-6C12.8 3.6 10.4 1.2 7 1.2z" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 1.6V8.2M1.6 8.2h10.8" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M6.4 2.5C4.3 2.8 2.7 4.4 2.6 7.3h3.8z" fill="currentColor"/></svg>LMB</span> to emit with the largest emitter. Hold <kbd>Shift</kbd> while dragging to use the smallest emitter.</p>
+                          <h4>Emit</h4>
+                          <p>Hold <span class="falling-about-mouse"><svg viewBox="0 0 14 20" aria-hidden="true"><path d="M7 1.2C3.6 1.2 1.2 3.6 1.2 7.2v6c0 3.4 2.4 5.6 5.8 5.6s5.8-2.2 5.8-5.6v-6C12.8 3.6 10.4 1.2 7 1.2z" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 1.6V8.2M1.6 8.2h10.8" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M6.4 2.5C4.3 2.8 2.7 4.4 2.6 7.3h3.8z" fill="currentColor"/></svg>LMB</span> to emit with the largest size. Move the mouse while holding to pour as you go.</p>
+                        </div>
+                      </div>
+                      <div role="tabpanel" id="falling-nav-keyboard" aria-labelledby="falling-nav-tab-keyboard" hidden>
+                        <div>
+                          <h4>Move</h4>
+                          <p>Hold <kbd>Space</kbd> and drag with <span class="falling-about-mouse"><svg viewBox="0 0 14 20" aria-hidden="true"><path d="M7 1.2C3.6 1.2 1.2 3.6 1.2 7.2v6c0 3.4 2.4 5.6 5.8 5.6s5.8-2.2 5.8-5.6v-6C12.8 3.6 10.4 1.2 7 1.2z" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 1.6V8.2M1.6 8.2h10.8" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M6.4 2.5C4.3 2.8 2.7 4.4 2.6 7.3h3.8z" fill="currentColor"/></svg>LMB</span> to move about.</p>
+                        </div>
+                        <div>
+                          <h4>Rotate</h4>
+                          <p>Hold <kbd>Q</kbd> or <kbd>E</kbd> to turn the view left or right. You can also hold <kbd>Shift</kbd> and drag with <span class="falling-about-mouse"><svg viewBox="0 0 14 20" aria-hidden="true"><path d="M7 1.2C3.6 1.2 1.2 3.6 1.2 7.2v6c0 3.4 2.4 5.6 5.8 5.6s5.8-2.2 5.8-5.6v-6C12.8 3.6 10.4 1.2 7 1.2z" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 1.6V8.2M1.6 8.2h10.8" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7.6 2.5C9.7 2.8 11.3 4.4 11.4 7.3H7.6z" fill="currentColor"/></svg>RMB</span> to turn it.</p>
+                        </div>
+                        <div>
+                          <h4>Emit</h4>
+                          <p>Hold <kbd>X</kbd> to emit with the largest size. Hold <kbd>Z</kbd> while emitting to use the smallest size.</p>
+                        </div>
+                        <div>
+                          <h4>Materials</h4>
+                          <p>Press <kbd>Tab</kbd> to select the next material, or <kbd>Shift</kbd> + <kbd>Tab</kbd> for the previous one.</p>
                         </div>
                       </div>
                       <div role="tabpanel" id="falling-nav-touch" aria-labelledby="falling-nav-tab-touch" hidden>
@@ -388,23 +407,23 @@
                       <div role="tabpanel" id="falling-nav-pad" aria-labelledby="falling-nav-tab-pad" hidden>
                         <div>
                           <h4>Move</h4>
-                          <p>The left stick or D-pad moves the emitter. At the edge of the view the plane scrolls.</p>
+                          <p>The <span class="falling-about-control"><span class="falling-about-glyph" aria-hidden="true">&#x010A;</span>Left Stick</span> or the D-pad moves the emitter. At the edge of the view the plane scrolls.</p>
                         </div>
                         <div>
                           <h4>Zoom</h4>
-                          <p>The right stick up and down zooms.</p>
+                          <p>Push the <span class="falling-about-control"><span class="falling-about-glyph" aria-hidden="true">&#x010B;</span>Right Stick</span> up or down to zoom.</p>
                         </div>
                         <div>
                           <h4>Rotate</h4>
-                          <p>The right stick left and right turns the view.</p>
+                          <p>Push the <span class="falling-about-control"><span class="falling-about-glyph" aria-hidden="true">&#x010B;</span>Right Stick</span> left or right to turn the view.</p>
                         </div>
                         <div>
                           <h4>Emit and emitter size</h4>
-                          <p>Hold the right trigger to emit atoms. A light pull makes a single stream; pulling farther widens the emitter. The left trigger always makes a single stream. You can keep emitting while moving, rotating, or zooming.</p>
+                          <p>Hold <span class="falling-about-control"><span class="falling-about-glyph is-trigger" aria-hidden="true">&#x011B;</span>R2</span> to emit atoms. A light pull makes a single stream; pulling farther widens the emitter. <span class="falling-about-control"><span class="falling-about-glyph is-trigger" aria-hidden="true">&#x011A;</span>L2</span> always makes a single stream. You can keep emitting while moving, rotating, or zooming.</p>
                         </div>
                         <div>
                           <h4>Settings</h4>
-                          <p>Options opens and closes settings. With the menu open, the D-pad or left stick moves between options, and Cross confirms the highlighted one.</p>
+                          <p>Options opens and closes settings. With the menu open, the D-pad or <span class="falling-about-control"><span class="falling-about-glyph" aria-hidden="true">&#x010A;</span>Left Stick</span> moves between options, and <span class="falling-about-control"><span class="falling-about-glyph" aria-hidden="true">&#x0114;</span>Cross</span> confirms the highlighted one.</p>
                         </div>
                         <div>
                           <h4>Readout</h4>
@@ -659,12 +678,12 @@
           </li>
         </ul>
         <div class="start-screen-copy">
-          <p class="start-screen-kicker">Audible Field</p>
+          <p class="start-screen-kicker">Growing Things</p>
           <p class="start-screen-title" data-audio-gate-title>Tap to begin</p>
           <p class="start-screen-note">A field of falling material, heard where it settles.</p>
         </div>
       </div>
     </div>
-    <script type="module" src="/app.js?v=560"></script>
+    <script type="module" src="/app.js?v=568"></script>
   </body>
 </html>

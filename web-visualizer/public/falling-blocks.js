@@ -2,12 +2,12 @@ import * as THREE from "three";
 import { audioEngine } from "./audio-engine.js?v=127";
 import { STEM_CORNERS, controller, subscribe } from "./mixer-core.js?v=69";
 import { applyConvert, applyInfect, applyPostMoves, applyVacuum, compileMaterials, parseMaterialsJson, stepWorld, tickEffects } from "./rule-engine.js?v=78";
-import { inputBindings } from "./input-bindings.js?v=17";
-import { fallingInput } from "./falling-input.js?v=95";
+import { inputBindings } from "./input-bindings.js?v=22";
+import { fallingInput } from "./falling-input.js?v=102";
 import { createBlockExpSurface } from "./block-exp-surface.js?v=4";
 
-// Leave the system cursor free. Pointer lock hides it, then puts it back
-// where the drag started instead of on the emitter.
+// Leave the system cursor free while panning. Pointer lock hides it, then puts
+// it back where the drag started instead of on the emitter.
 fallingInput.lockRightDrag = false;
 
 /**
@@ -18,7 +18,7 @@ const ATOM_SIZE = 0.25;
 /**
  * Lightest RT pull emits atoms at this fraction of the grid pitch.
  * Full pull reaches full size. The same curve widens the brush.
- * A single stream (LT, Shift) always uses this size.
+ * A single stream (LT, Z) always uses this size.
  */
 const ATOM_SCALE_MIN = 0.5;
 /** Max emitter height above the ground plane (world units). */
@@ -284,8 +284,8 @@ let padGesture = false;
 let aimWorldZ = 0;
 let emitAcc = 0;
 let emitting = false;
-/** Shift is previewing a one-cell pour, before or during the click. */
-let shiftStream = false;
+/** Z is previewing a one-cell pour, before or during the click. */
+let singleStream = false;
 /** Quantized emitter size last applied. A change restarts the settle wait. */
 let emitSizeKey = -1;
 let emitSizeHold = 0;
@@ -462,7 +462,7 @@ function syncLandingTarget() {
   landingTarget.ink.value = landingInkForFootprint(brushN, emitScale);
   landingTarget.origin.value.set(surface ? surface.position.x : 0, surface ? surface.position.z : 0);
   canvas?.classList.toggle("is-emitting", emitting);
-  canvas?.classList.toggle("is-single-stream", shiftStream);
+  canvas?.classList.toggle("is-single-stream", singleStream);
 }
 
 function showError(message) {
@@ -2536,12 +2536,12 @@ function applyInput(dt) {
   setAimFromWorld();
   syncEmitter();
 
-  // Shift and LT preview a single stream. RT resizes with pressure.
+  // Z and LT preview a single stream. RT resizes with pressure.
   // Atoms wait until that footprint stops changing.
-  shiftStream = !!frame.shiftHeld;
+  singleStream = !!frame.singleHeld;
   let brush = BRUSH_MAX;
   let scale = 1;
-  if (frame.shiftHeld || frame.ltSingle) {
+  if (frame.singleHeld || frame.ltSingle) {
     brush = 1;
     scale = ATOM_SCALE_MIN;
   } else if (frame.rtHeld) {
@@ -2605,8 +2605,8 @@ function updateEmitStream(dt, active) {
  * Brush edge and atom size follow RT. A light RT pull emits half-size atoms
  * in a single stream; a full RT pull emits full-size atoms across the wide
  * field. LT emits that same single stream at any pull. Left click always
- * uses the largest emitter. Shift+left click always uses the smallest.
- * Shift+right-drag and Alt+right-drag yaw the view.
+ * uses the largest emitter. Z+left click always uses the smallest.
+ * Shift+right-drag and Q/E yaw the view. Space+left-drag slides it.
  */
 function pourBrush(ix, iz) {
   if (!cells || !catalog) return;
@@ -4918,7 +4918,7 @@ export function hideFallingBlocks() {
   fallingInput.detach();
   resetPadPan();
   emitting = false;
-  shiftStream = false;
+  singleStream = false;
   canvas?.classList.remove("is-emitting", "is-single-stream");
   emitAcc = 0;
   if (rafId) window.cancelAnimationFrame(rafId);

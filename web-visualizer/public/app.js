@@ -1,10 +1,10 @@
 import { STEM_CORNERS, notify, tickMixer } from "./mixer-core.js?v=69";
 import { audioEngine } from "./audio-engine.js?v=127";
-import { gamepadInput } from "./gamepad-input.js?v=22";
+import { gamepadInput } from "./gamepad-input.js?v=25";
 import { dualsenseHid } from "./dualsense-hid.js?v=8";
 import { mountUiScrolls } from "./ui-scroll.js?v=1";
 import * as diagnostics from "./diagnostics.js?v=72";
-import * as fallingTab from "./falling-tab.js?v=168";
+import * as fallingTab from "./falling-tab.js?v=175";
 
 const statusEl = document.querySelector(".status");
 const audioLineEls = {
@@ -712,12 +712,12 @@ function mountAudioTrace() {
     try {
       const file = new File([text], fileName(), { type: "text/plain" });
       if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: "Audible Field trace" });
+        await navigator.share({ files: [file], title: "Growing Things trace" });
         setStatus("shared file");
         return;
       }
       if (navigator.share) {
-        await navigator.share({ text, title: "Audible Field trace" });
+        await navigator.share({ text, title: "Growing Things trace" });
         setStatus("shared text");
         return;
       }

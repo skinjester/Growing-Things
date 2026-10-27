@@ -4,7 +4,7 @@
  */
 
 import { dualsenseHid } from "./dualsense-hid.js?v=8";
-import { gamepadAxes, gamepadButtons, inputBindings } from "./input-bindings.js?v=19";
+import { gamepadAxes, gamepadButtons, inputBindings } from "./input-bindings.js?v=22";
 import { TouchInput } from "./touch-input.js?v=4";
 
 /** Charge duration kept for the stylesheet. A press pours immediately. */
@@ -368,7 +368,7 @@ function sphereWirePath(yaw) {
  *   cycleNextHeld: boolean,
  *   ltHeld: boolean,
  *   rtHeld: boolean,
- *   shiftHeld: boolean,
+ *   singleHeld: boolean,
  *   touchAim: boolean,
  *   fingerAim: boolean,
  *   settingsEdge: boolean,
@@ -410,11 +410,21 @@ export class FallingInput {
     this._emitSettleY = 0;
     this._shiftHeld = false;
     this._altHeld = false;
+    /** KeyboardEvent.code of each bound key held down. */
+    this._heldCodes = new Set();
     this._mouseFull = false;
     this._mouseLight = false;
     this._rightHeld = false;
+    /** The button that started the current slide: right, or left with the pan key. */
+    this._panButton = -1;
     /** When set, a right-drag hides the cursor and keeps moving past the window edge. */
     this.lockRightDrag = false;
+    /** When set, a Shift right-drag hides the cursor and leaves it where the drag started. */
+    this.lockRotateDrag = true;
+    /** @type {HTMLElement | null} */
+    this._cursorStandIn = null;
+    /** @type {{ x: number, y: number } | null} */
+    this._lockAt = null;
     this._yawHeld = false;
     this._yawRingHeld = false;
     this._yawRingPointer = -1;
@@ -520,6 +530,7 @@ export class FallingInput {
     this._onKeyDown = this._onKeyDown.bind(this);
     this._onKeyUp = this._onKeyUp.bind(this);
     this._onWindowPointerMove = this._onWindowPointerMove.bind(this);
+    this._onPointerLockChange = this._onPointerLockChange.bind(this);
     this._onPointerGone = this._onPointerGone.bind(this);
     this._onBlockBrowserGesture = this._onBlockBrowserGesture.bind(this);
     this._onEmitPointerDown = this._onEmitPointerDown.bind(this);
@@ -579,6 +590,12 @@ export class FallingInput {
     window.addEventListener("keydown", this._onKeyDown, true);
     window.addEventListener("keyup", this._onKeyUp);
     window.addEventListener("pointermove", this._onWindowPointerMove);
+    document.addEventListener("pointerlockchange", this._onPointerLockChange);
+    const standIn = document.createElement("div");
+    standIn.className = "falling-cursor-stand-in";
+    standIn.hidden = true;
+    document.body.append(standIn);
+    this._cursorStandIn = standIn;
     window.addEventListener("blur", this._onPointerGone);
     document.documentElement.addEventListener("pointerleave", this._onPointerGone);
     document.documentElement.classList.add("is-field-play");
@@ -599,7 +616,7 @@ export class FallingInput {
   detach() {
     const canvas = this._canvas;
     if (canvas) {
-      canvas.classList.remove("is-grabbing", "is-yawing");
+      canvas.classList.remove("is-grabbing", "is-yawing", "is-pan-ready");
       canvas.removeEventListener("pointermove", this._onPointerMove);
       canvas.removeEventListener("pointerout", this._onPointerOut);
       canvas.removeEventListener("pointerdown", this._onPointerDown);
@@ -614,6 +631,10 @@ export class FallingInput {
     window.removeEventListener("keydown", this._onKeyDown, true);
     window.removeEventListener("keyup", this._onKeyUp);
     window.removeEventListener("pointermove", this._onWindowPointerMove);
+    document.removeEventListener("pointerlockchange", this._onPointerLockChange);
+    this._cursorStandIn?.remove();
+    this._cursorStandIn = null;
+    this._lockAt = null;
     window.removeEventListener("blur", this._onPointerGone);
     document.documentElement.removeEventListener("pointerleave", this._onPointerGone);
     document.documentElement.classList.remove("is-field-play");
@@ -649,6 +670,7 @@ export class FallingInput {
     this._screenTouch.reset();
     this._shiftHeld = false;
     this._altHeld = false;
+    this._heldCodes.clear();
     this._mouseFull = false;
     this._mouseLight = false;
     this._rightHeld = false;
@@ -751,9 +773,11 @@ export class FallingInput {
     let zoomFactor = this._zoomAccum;
     this._orbitAccum = 0;
     this._zoomAccum = 1;
+    const keyYaw = (this._keyHeld(k.yawLeft) ? 1 : 0) - (this._keyHeld(k.yawRight) ? 1 : 0);
 
     if (dt > 0) {
-      // Pointer yaw stays on orbitDelta. Stick yaw is a separate gesture.
+      // Pointer and Q/E yaw stay on orbitDelta. Stick yaw is a separate gesture.
+      if (keyYaw) orbitDelta += keyYaw * k.yawRate * dt;
       if (rightStick.x) viewYaw += -rightStick.x * g.orbitStickRate * dt;
       if (rightStick.y) zoomFactor *= Math.exp(-rightStick.y * g.zoomStickRate * dt);
     }
@@ -792,7 +816,7 @@ export class FallingInput {
     // RT opens from a single stream to the wide field as the pull deepens.
     // LT is a single stream at any pull past the threshold. The trigger
     // pulled further wins. LMB is always the largest emitter.
-    // Shift+LMB is always the smallest. A touchpad click emits a clump.
+    // Z+LMB is always the smallest. A touchpad click emits a clump.
     // A finger on the pad only aims.
     const rtActive = rt >= g.emitAnalogThreshold;
     const ltActive = lt >= g.emitAnalogThreshold;
@@ -891,7 +915,7 @@ export class FallingInput {
       touchPan: screen.pan,
       touchActive: screen.active,
       touchZoom: screen.zoomFactor,
-      yawing: this._yawing() || rx !== 0,
+      yawing: this._yawing() || rx !== 0 || keyYaw !== 0,
       zoomFactor,
       aimStickX,
       aimStickY,
@@ -903,7 +927,7 @@ export class FallingInput {
       cycleNextHeld: cycleNext,
       ltHeld: ltActive,
       rtHeld: rtActive,
-      shiftHeld: this._shiftHeld,
+      singleHeld: this._keyHeld(this.bindings.mouse.emitSingleKey),
       touchAim: !!touch.aim,
       fingerAim: false,
       settingsEdge,
@@ -965,10 +989,7 @@ export class FallingInput {
   }
 
   _syncMouseEmit() {
-    const single =
-      this._emitHeld &&
-      this._shiftHeld &&
-      this.bindings.mouse.emitSingleModifier === "shift";
+    const single = this._emitHeld && this._keyHeld(this.bindings.mouse.emitSingleKey);
     this._mouseFull = this._emitHeld && !single;
     this._mouseLight = single;
   }
@@ -1065,7 +1086,12 @@ export class FallingInput {
    * @param {Event} [event]
    */
   _onPointerGone(event) {
-    if (event?.type === "blur") this._releaseYawRing(true);
+    if (event?.type === "blur") {
+      this._releaseYawRing(true);
+      this._heldCodes.clear();
+      this._syncMouseEmit();
+      this._syncPanReady();
+    }
     if (event?.type === "pointerleave" && this._emitHeldDown) {
       const pointerId = /** @type {PointerEvent} */ (event).pointerId;
       if (pointerId !== this._emitPointerId) this._screenTouch.pointerUp(/** @type {PointerEvent} */ (event));
@@ -1127,7 +1153,7 @@ export class FallingInput {
 
   /**
    * A move on the view places the emitter. Right-drag slides the grid.
-   * Middle-drag, Shift+right-drag, and Alt+right-drag rotate.
+   * Middle-drag and Shift+right-drag rotate.
    */
   _onWindowPointerMove(event) {
     if (event.pointerType === "touch") return;
@@ -1218,7 +1244,25 @@ export class FallingInput {
     return false;
   }
 
-  /** Shift previews the single-stream mark even when the keydown landed before focus. */
+  /**
+   * @param {string} code KeyboardEvent.code
+   */
+  _keyHeld(code) {
+    return !!code && this._heldCodes.has(code);
+  }
+
+  /** KeyboardEvent.codes the playfield holds: the small-emitter key, the pan key, and Q/E yaw. */
+  _heldKeyBindings() {
+    const m = this.bindings.mouse;
+    const k = this.bindings.keyboard;
+    return [m.emitSingleKey, m.panKey, k.yawLeft, k.yawRight];
+  }
+
+  _syncPanReady() {
+    this._canvas?.classList.toggle("is-pan-ready", this._keyHeld(this.bindings.mouse.panKey));
+  }
+
+  /** Picks up Shift and Alt even when the keydown landed before focus. */
   _noteModifiers(event) {
     if (event.pointerType === "touch") return;
     const shiftChanged = event.shiftKey !== this._shiftHeld;
@@ -1226,7 +1270,6 @@ export class FallingInput {
     if (!shiftChanged && !altChanged) return;
     this._shiftHeld = event.shiftKey;
     this._altHeld = event.altKey;
-    if (shiftChanged) this._syncMouseEmit();
     if (this._rightHeld || this._yawHeld) this._setDragCursor(this._yawing() ? "yaw" : "pan");
   }
 
@@ -1274,7 +1317,7 @@ export class FallingInput {
    * @param {{ clientX?: number, clientY?: number } | null} event
    */
   _holdAimAfterPan(event) {
-    if (!this.lockRightDrag) return;
+    if (document.pointerLockElement !== this._canvas) return;
     this._aimAt = null;
     this._moveX = 0;
     this._moveY = 0;
@@ -1299,18 +1342,46 @@ export class FallingInput {
     return true;
   }
 
-  /** Hide the cursor and keep reading movement past the edge of the window. */
-  _requestPanLock() {
+  /**
+   * Hide the cursor and keep reading movement past the edge of the window.
+   * @param {{ x: number, y: number } | null} [at] where the cursor is pinned
+   */
+  _requestPanLock(at = this._pointerAt) {
     const canvas = this._canvas;
-    if (!this.lockRightDrag || !(canvas instanceof HTMLElement) || !canvas.requestPointerLock) return;
+    const wanted = this.lockRightDrag || (this.lockRotateDrag && this._yawing());
+    if (!wanted || !(canvas instanceof HTMLElement) || !canvas.requestPointerLock) return;
     if (document.pointerLockElement === canvas) return;
+    this._lockAt = at ? { x: at.x, y: at.y } : null;
     const pending = canvas.requestPointerLock();
     if (pending && typeof pending.catch === "function") pending.catch(() => {});
   }
 
   _releasePanLock() {
-    if (!this.lockRightDrag) return;
     if (document.pointerLockElement === this._canvas) document.exitPointerLock();
+  }
+
+  _onPointerLockChange() {
+    this._syncCursorStandIn();
+  }
+
+  /** Pointer lock hides the cursor, so draw the drag cursor where it was pinned. */
+  _syncCursorStandIn() {
+    const el = this._cursorStandIn;
+    if (!el) return;
+    const at = this._lockAt;
+    const locked = document.pointerLockElement;
+    let cursor = "";
+    if (locked === this._canvas && this._yawing()) cursor = "yaw";
+    else if (locked && locked === this._yawRing && this._yawRingMode) {
+      cursor = this._yawRingMode === "yaw" ? "ew" : "ns";
+    }
+    const show = !!at && !!cursor;
+    el.hidden = !show;
+    el.dataset.cursor = cursor;
+    if (show) {
+      el.style.left = `${at.x}px`;
+      el.style.top = `${at.y}px`;
+    }
   }
 
   /**
@@ -1321,6 +1392,7 @@ export class FallingInput {
     if (!canvas) return;
     canvas.classList.toggle("is-grabbing", mode === "pan");
     canvas.classList.toggle("is-yawing", mode === "yaw");
+    this._syncCursorStandIn();
   }
 
   _onPointerDown(event) {
@@ -1342,16 +1414,18 @@ export class FallingInput {
       canvas?.setPointerCapture?.(event.pointerId);
       return;
     }
-    if (event.button === m.orbitButton) {
+    const keyPan = event.button === m.emitButton && this._keyHeld(m.panKey) && !this._rightHeld;
+    if (event.button === m.orbitButton || keyPan) {
       this._skipAimMove = false;
       this._aimHold = null;
       this._rightHeld = true;
+      this._panButton = event.button;
       this._shiftHeld = event.shiftKey;
       this._altHeld = event.altKey;
       this._setDragCursor(this._yawing() ? "yaw" : "pan");
       event.preventDefault();
       canvas?.setPointerCapture?.(event.pointerId);
-      this._requestPanLock();
+      this._requestPanLock({ x: event.clientX, y: event.clientY });
       return;
     }
     if (event.button === m.emitButton) {
@@ -1379,8 +1453,9 @@ export class FallingInput {
       this._setDragCursor(this._yawing() ? "yaw" : this._rightHeld ? "pan" : null);
       return;
     }
-    if (event.button === m.orbitButton) {
+    if (this._rightHeld && event.button === this._panButton) {
       this._rightHeld = false;
+      this._panButton = -1;
       this._setDragCursor(this._yawHeld ? "yaw" : null);
       this._holdAimAfterPan(event);
       this._releasePanLock();
@@ -1430,10 +1505,12 @@ export class FallingInput {
       this._shiftHeld = true;
       this._syncMouseEmit();
       if (this._rightHeld || this._yawHeld) this._setDragCursor(this._yawing() ? "yaw" : "pan");
+      if (this._rightHeld) this._requestPanLock();
     }
     if (event.key === "Alt") {
       this._altHeld = true;
       if (this._rightHeld || this._yawHeld) this._setDragCursor(this._yawing() ? "yaw" : "pan");
+      if (this._rightHeld) this._requestPanLock();
       if (!isEditableTarget(event.target)) event.preventDefault();
     }
     const k = this.bindings.keyboard;
@@ -1446,6 +1523,16 @@ export class FallingInput {
     }
     if (document.querySelector("dialog[open]")) return;
     if (event.target && /^(INPUT|TEXTAREA|SELECT)$/i.test(event.target.tagName)) {
+      return;
+    }
+    // A held Space never scrolls the page or presses a focused button.
+    if (!event.ctrlKey && !event.metaKey && this._heldKeyBindings().includes(event.code)) {
+      if (!event.repeat) {
+        this._heldCodes.add(event.code);
+        this._syncMouseEmit();
+        this._syncPanReady();
+      }
+      event.preventDefault();
       return;
     }
     if (!k.emit || event.code !== k.emit || event.repeat) return;
@@ -1463,6 +1550,11 @@ export class FallingInput {
       this._altHeld = false;
       if (this._rightHeld || this._yawHeld) this._setDragCursor(this._yawing() ? "yaw" : "pan");
       if (!isEditableTarget(event.target)) event.preventDefault();
+    }
+    if (this._heldCodes.delete(event.code)) {
+      this._syncMouseEmit();
+      this._syncPanReady();
+      if (!document.querySelector("dialog[open]") && !isEditableTarget(event.target)) event.preventDefault();
     }
     const k = this.bindings.keyboard;
     if (!k.emit || event.code !== k.emit) return;
@@ -1873,6 +1965,10 @@ export class FallingInput {
     let dy = event.clientY - this._yawLastY;
     this._yawLastX = event.clientX;
     this._yawLastY = event.clientY;
+    if (this._yawRing && document.pointerLockElement === this._yawRing) {
+      dx = event.movementX || 0;
+      dy = event.movementY || 0;
+    }
     if (!this._yawRingMode) {
       const adx = Math.abs(event.clientX - this._yawOriginX);
       const ady = Math.abs(event.clientY - this._yawOriginY);
@@ -1891,6 +1987,7 @@ export class FallingInput {
         root?.classList.add("is-zooming");
         document.documentElement.classList.add("is-yaw-zoom");
       }
+      this._lockYawRing();
     }
     if (this._yawRingMode === "yaw") {
       if (!dx) return;
@@ -1909,6 +2006,23 @@ export class FallingInput {
   }
 
   /**
+   * Pin the cursor once the drag has picked an axis. Locking on press
+   * would hide the cursor for clicks and double-clicks too.
+   */
+  _lockYawRing() {
+    const root = this._yawRing;
+    if (!root?.requestPointerLock || document.pointerLockElement === root) return;
+    const globe = (this._yawSphere ?? root).getBoundingClientRect();
+    this._lockAt = { x: globe.left + globe.width / 2, y: globe.top + globe.height / 2 };
+    const pending = root.requestPointerLock();
+    if (pending && typeof pending.catch === "function") pending.catch(() => {});
+  }
+
+  _unlockYawRing() {
+    if (this._yawRing && document.pointerLockElement === this._yawRing) document.exitPointerLock();
+  }
+
+  /**
    * @param {PointerEvent} event
    */
   _onYawRingUp(event) {
@@ -1922,6 +2036,7 @@ export class FallingInput {
    */
   _onYawRingDblClick(event) {
     event.preventDefault();
+    this._unlockYawRing();
     this._orbitAccum = 0;
     this._zoomAccum = 1;
     this._yawHome = true;
@@ -1951,6 +2066,7 @@ export class FallingInput {
    */
   _releaseYawRing(fade) {
     const root = this._yawRing;
+    this._unlockYawRing();
     if (!this._yawRingHeld && !root?.classList.contains("is-dragging") && !root?.classList.contains("is-zooming")) {
       document.documentElement.classList.remove("is-yaw-turn", "is-yaw-zoom");
       return;

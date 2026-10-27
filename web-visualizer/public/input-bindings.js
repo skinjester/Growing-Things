@@ -6,10 +6,11 @@
  * Mouse:
  *   move            → aim emitter
  *   LMB hold        → largest emitter (full field, full atom size)
- *   Shift+LMB hold  → smallest emitter (one half-size column)
+ *   Z+LMB hold      → smallest emitter (one half-size column)
  *   RMB drag             → slide the playfield, holding the emitter on the cursor.
+ *   Space+LMB drag       → slide the playfield, as RMB drag does
  *                          The pointer stays locked until the button is released.
- *   Shift+RMB or Alt+RMB → yaw the playfield
+ *   Shift+RMB            → yaw the playfield
  *   MMB drag             → yaw the playfield (the wheel is ignored while it is held)
  *   top-center ring      → drag sideways to yaw, up or down to zoom; double-click resets the heading
  *   wheel           → zoom (a middle click does not yaw while the wheel is moving)
@@ -36,6 +37,7 @@
  *   X hold          → emit
  *   Tab             → next material (never moves focus)
  *   Shift+Tab       → previous material
+ *   Q / E hold      → yaw the playfield left / right
  *
  * Touchscreen:
  *   one-finger drag  → pan the field under the emitter (a tap, or the first of two fingers, does not)
@@ -85,13 +87,15 @@ export const inputBindings = {
   mouse: {
     /** 0 = left, 1 = middle, 2 = right */
     emitButton: 0,
-    /** Held with emitButton: smallest emitter instead of the largest. */
-    emitSingleModifier: "shift",
+    /** KeyboardEvent.code held with emitButton: smallest emitter instead of the largest. */
+    emitSingleKey: "KeyZ",
+    /** KeyboardEvent.code held with emitButton: slide the grid, as a right-drag does. */
+    panKey: "Space",
     orbitButton: 2,
-    /** Middle button yaws. Shift+right-drag and Alt+right-drag yaw as well. */
+    /** Middle button yaws. Shift+right-drag yaws as well. */
     yawButton: 1,
     /** Held with the right button: yaw instead of sliding the grid. */
-    yawModifiers: ["shift", "alt"],
+    yawModifiers: ["shift"],
     /** A move on the view places the emitter. Right-drag slides the grid. */
     moveAimsEmitter: true,
     wheelZooms: true,
@@ -105,6 +109,11 @@ export const inputBindings = {
     emitBrush: /** @type {BrushMode} */ ("max"),
     /** KeyboardEvent.code — Tab steps forward, Shift+Tab steps back. */
     cycleNext: "Tab",
+    /** KeyboardEvent.code — hold to yaw the playfield. The Mouse turn setting picks the pivot. */
+    yawLeft: "KeyQ",
+    yawRight: "KeyE",
+    /** Q/E yaw (rad/s). */
+    yawRate: 1.15,
   },
   gamepad: {
     /** Deadzone for the mixer poll in gamepad-input.js. */
