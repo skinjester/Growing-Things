@@ -2775,6 +2775,14 @@ html.is-yaw-zoom * {
   line-height: var(--title-line);
 }
 
+/* Centered on the title and link together. The negative margins keep the
+   button out of the header's height, so the title stays level with .top. */
+.falling-about-close {
+  flex: 0 0 auto;
+  align-self: center;
+  margin-block: calc(var(--falling-control, 48px) / -2);
+}
+
 .falling-about-title-wrap {
   display: flex;
   flex-direction: column;
