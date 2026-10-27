@@ -1,0 +1,275 @@
+{
+  "default": "block",
+  "floor": "liquid",
+  "materials": [
+    {
+      "id": "block",
+      "label": "Block",
+      "blurb": "Sinks under what is below",
+      "color": "#c4624e",
+      "surface": "solid",
+      "rules": [
+        {
+          "name": "fall",
+          "diagram": [
+            "@ => _",
+            "_    @"
+          ]
+        },
+        {
+          "name": "lone-dissolve",
+          "when": { "resting": true, "onFloor": true, "sameAbove": false },
+          "do": { "age": 3.5, "visual": "shrink", "then": "clear" }
+        },
+        {
+          "name": "crush-support",
+          "when": { "sameAbove": true, "sameBelow": false },
+          "do": { "age": 3.5, "then": "clear" }
+        }
+      ]
+    }
+    ,
+    {
+      "id": "sand",
+      "label": "Sand",
+      "blurb": "Piles into gaps and spreads",
+      "color": "#e0a84a",
+      "surface": "solid",
+      "rules": [
+        {
+          "name": "fall",
+          "diagram": [
+            "@ => _",
+            "_    @"
+          ]
+        },
+        {
+          "name": "slide",
+          "any": "xz.rotations",
+          "diagram": [
+            "@. => _.",
+            "x_    x@"
+          ]
+        }
+      ]
+    }
+    ,
+    {
+      "id": "diffuse",
+      "label": "Diffuse",
+      "blurb": "Spreads and floats away",
+      "color": "#f4d59a",
+      "surface": "solid",
+      "rules": [
+        {
+          "name": "fall",
+          "diagram": [
+            "@ => _",
+            "_    @"
+          ]
+        },
+        {
+          "name": "slide",
+          "any": "xz.rotations",
+          "diagram": [
+            "@. => _.",
+            "x_    x@"
+          ]
+        },
+        {
+          "name": "blow",
+          "when": { "resting": true, "above": false },
+          "do": { "age": 4.5, "hold": 2, "lifeScale": 0.5, "visual": "rise", "then": "clear" }
+        },
+        {
+          "name": "spread",
+          "do": { "convert": { "any": true, "limit": "collection" } }
+        }
+      ]
+    },
+    {
+      "id": "erode",
+      "label": "Erode",
+      "blurb": "Cuts through a pile",
+      "color": "#7a9e6a",
+      "surface": "solid",
+      "sonify": false,
+      "rules": [
+        {
+          "name": "fall",
+          "diagram": [
+            "@ => _",
+            "_    @"
+          ]
+        },
+        {
+          "name": "slide",
+          "any": "xz.rotations",
+          "diagram": [
+            "@. => _.",
+            "x_    x@"
+          ]
+        },
+        {
+          "name": "creep",
+          "maybe": 0.25,
+          "any": "xz.rotations",
+          "supportUnderDest": true,
+          "diagram": ["@_ => _@"]
+        },
+        {
+          "name": "lone-dissolve",
+          "when": { "resting": true, "onFloor": true, "sameAbove": false, "blockAbove": false },
+          "do": { "age": 6, "visual": "shrink", "then": "clear" }
+        },
+        {
+          "name": "crush-support",
+          "when": { "resting": true, "onFloor": true, "sameAbove": true },
+          "do": { "age": 6, "then": "clear" }
+        },
+        {
+          "name": "vacuum",
+          "do": { "vacuum": { "skipSurface": "liquid" }, "then": "clear" }
+        }
+      ]
+    }
+    /*
+    ,
+    {
+      "id": "slime",
+      "label": "Slime",
+      "color": "#90ee90",
+      "opacity": 0.65,
+      "surface": "solid",
+      "rules": [
+        {
+          "name": "fall",
+          "diagram": [
+            "@ => _",
+            "_    @"
+          ]
+        },
+        {
+          "name": "ooze",
+          "maybe": 0.03333333333333333,
+          "any": "xz.rotations",
+          "diagram": [
+            "@_ => _@",
+            "x.    x."
+          ]
+        },
+        {
+          "name": "live",
+          "do": { "age": 3.5, "lifeScale": 2, "then": "clear" }
+        }
+      ]
+    }
+    */
+    /*
+    ,
+    {
+      "id": "block-exp",
+      "label": "Block Exp",
+      "color": "#3d7ec4",
+      "surface": "solid",
+      "rules": [
+        {
+          "name": "fall",
+          "diagram": [
+            "@ => _",
+            "_    @"
+          ]
+        },
+        {
+          "name": "lone-dissolve",
+          "when": { "resting": true, "onFloor": true, "sameAbove": false },
+          "do": { "age": 3.5, "visual": "shrink", "then": "clear" }
+        },
+        {
+          "name": "crush-support",
+          "when": { "resting": true, "onFloor": true, "sameAbove": true },
+          "do": { "age": 3.5, "then": "clear" }
+        }
+      ]
+    }
+    */
+    /*
+    ,
+    {
+      "id": "etch",
+      "label": "Etch",
+      "color": "#3d9b8f",
+      "surface": "solid",
+      "rules": [
+        {
+          "name": "etch-down",
+          "diagram": [
+            "@ => _",
+            "x    _"
+          ]
+        },
+        {
+          "name": "etch-side",
+          "for": "xz.rotations",
+          "diagram": ["@x => __"]
+        },
+        {
+          "name": "fall",
+          "diagram": [
+            "@ => _",
+            "_    @"
+          ]
+        },
+        {
+          "name": "dissolve",
+          "belowBottom": "liquid",
+          "diagram": ["@ => _"]
+        }
+      ]
+    },
+    {
+      "id": "water",
+      "label": "Water",
+      "color": "#add8e6",
+      "opacity": 0.35,
+      "surface": "liquid",
+      "rules": [
+        {
+          "name": "fall",
+          "diagram": [
+            "@ => _",
+            "_    @"
+          ]
+        },
+        {
+          "name": "slide",
+          "for": "xz.rotations",
+          "diagram": [
+            "@. => _.",
+            "x_    x@"
+          ]
+        },
+        {
+          "name": "seek",
+          "any": "xz.rotations",
+          "supportUnderDest": true,
+          "seekTouch": true,
+          "seekTouchMin": 1,
+          "gainTouchStrict": true,
+          "belowBottom": "liquid",
+          "diagram": ["@_ => _@"]
+        },
+        {
+          "name": "flow",
+          "for": "xz.rotations",
+          "diagram": ["@_ => _@"]
+        },
+        {
+          "name": "dry",
+          "do": { "dryUnbounded": { "seconds": 5, "resetOn": "gainedTouch" } }
+        }
+      ]
+    }
+    */
+  ]
+}

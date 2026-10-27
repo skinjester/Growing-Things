@@ -1,0 +1,17 @@
+{
+  "name": "echoscape-mixer-viz",
+  "private": true,
+  "version": "0.1.0",
+  "description": "4-quadrant mixer visualizer for EchoScape",
+  "scripts": {
+    "build": "node scripts/build-static.js",
+    "encode-beds": "node scripts/encode-runtime-beds.js",
+    "start": "node scripts/build-static.js && node server.js"
+  },
+  "dependencies": {
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1"
+  }
+}

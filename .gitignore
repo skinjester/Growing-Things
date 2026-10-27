@@ -1,0 +1,14 @@
+/EchoScape Max patch files/plugins/
+/web-visualizer/dist/
+
+# Project docs kept locally, not in git
+/Docs/
+
+/videos/
+
+# Local sample masters. Playback uses the encoded files in sample-runtime/.
+/sample-master/
+
+
+node_modules/
+.vercel/

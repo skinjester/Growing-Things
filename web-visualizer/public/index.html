@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Audible Field</title>
+    <meta
+      name="description"
+      content="Interactive browser instrument where simulated materials fall, spread, collide, and shape sound in real time."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://audible-field.vercel.app/" />
+    <meta property="og:title" content="AUDIBLE FIELD" />
+    <meta
+      property="og:description"
+      content="Interactive browser instrument where simulated materials fall, spread, collide, and shape sound in real time."
+    />
+    <meta property="og:image" content="https://audible-field.vercel.app/og-image-2026-10-14.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="AUDIBLE FIELD" />
+    <meta
+      name="twitter:description"
+      content="Interactive browser instrument where simulated materials fall, spread, collide, and shape sound in real time."
+    />
+    <meta name="twitter:image" content="https://audible-field.vercel.app/og-image-2026-10-14.png" />
+    <link rel="stylesheet" href="/styles.css?v=332" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "/vendor/three/build/three.module.js",
+          "three/addons/": "/vendor/three/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body class="mode-falling-blocks">
+    <main class="app">
+      <header class="top">
+        <div class="brand">
+          <p class="status" data-state="offline">
+            <span data-status-audio class="is-off">Audio off</span>
+            <span class="status-sep" aria-hidden="true">•</span>
+            <span data-status-mouse>mouse</span>
+            <span class="status-sep" aria-hidden="true">•</span>
+            <span data-status-touch class="is-off">touchscreen</span>
+            <span class="status-sep" aria-hidden="true">•</span>
+            <span data-status-pad class="is-off">DualSense</span>
+          </p>
+          <h1>Audible Field</h1>
+        </div>
+        <div class="top-actions">
+          <button
+            type="button"
+            class="top-btn"
+            data-diagnostics-toggle
+            aria-pressed="false"
+            title="Show diagnostics"
+          >
+            Diagnostics
+          </button>
+          <button
+            type="button"
+            class="speaker-toggle"
+            data-audio-switch
+            role="switch"
+            aria-checked="true"
+            aria-label="Audio"
+            title="Turn audio off"
+          >
+            <svg class="speaker-icon speaker-icon-on" viewBox="0 0 256 256" aria-hidden="true">
+              <path d="M155.51,24.81a8,8,0,0,0-8.42.88L77.25,80H32A16,16,0,0,0,16,96v64a16,16,0,0,0,16,16H77.25l69.84,54.31A8,8,0,0,0,160,224V32A8,8,0,0,0,155.51,24.81ZM32,96H72v64H32ZM144,207.64,88,164.09V91.91l56-43.55Zm54-106.08a40,40,0,0,1,0,52.88,8,8,0,0,1-12-10.58,24,24,0,0,0,0-31.72,8,8,0,0,1,12-10.58ZM248,128a79.9,79.9,0,0,1-20.37,53.34,8,8,0,0,1-11.92-10.67,64,64,0,0,0,0-85.33,8,8,0,1,1,11.92-10.67A79.83,79.83,0,0,1,248,128Z" />
+            </svg>
+            <svg class="speaker-icon speaker-icon-off" viewBox="0 0 256 256" aria-hidden="true">
+              <path d="M53.92,34.62A8,8,0,1,0,42.08,45.38L73.55,80H32A16,16,0,0,0,16,96v64a16,16,0,0,0,16,16H77.25l69.84,54.31A8,8,0,0,0,160,224V175.09l42.08,46.29a8,8,0,1,0,11.84-10.76ZM32,96H72v64H32ZM144,207.64,88,164.09V95.89l56,61.6Zm42-63.77a24,24,0,0,0,0-31.72,8,8,0,1,1,12-10.57,40,40,0,0,1,0,52.88,8,8,0,0,1-12-10.59Zm-80.16-76a8,8,0,0,1,1.4-11.23l39.85-31A8,8,0,0,1,160,32v74.83a8,8,0,0,1-16,0V48.36l-26.94,21A8,8,0,0,1,105.84,67.91ZM248,128a79.9,79.9,0,0,1-20.37,53.34,8,8,0,0,1-11.92-10.67,64,64,0,0,0,0-85.33,8,8,0,1,1,11.92-10.67A79.83,79.83,0,0,1,248,128Z" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <div data-panel="diagnostics" hidden>
+        <div class="diag-top">
+        <div class="mixer-col">
+          <div class="pad-slot">
+            <div class="pad" data-pad>
+              <div class="pad-blobs" aria-hidden="true">
+                <span class="pad-blob" data-corner="tl"></span>
+                <span class="pad-blob" data-corner="tr"></span>
+                <span class="pad-blob" data-corner="bl"></span>
+                <span class="pad-blob" data-corner="br"></span>
+              </div>
+              <div class="quad nw" data-quad="tl">
+                <button type="button" class="name stem-slot" data-stem-slot="tl" title="Choose TL sample">
+                  <span class="stem-slot-label" data-corner-name="tl">Bowed Guitar G</span>
+                  <span class="stem-caret" aria-hidden="true"></span>
+                </button>
+                <span class="pct" data-vol="tl">0%</span>
+              </div>
+              <div class="quad ne" data-quad="tr">
+                <button type="button" class="name stem-slot" data-stem-slot="tr" title="Choose TR sample">
+                  <span class="stem-slot-label" data-corner-name="tr">Industry-01</span>
+                  <span class="stem-caret" aria-hidden="true"></span>
+                </button>
+                <span class="pct" data-vol="tr">0%</span>
+              </div>
+              <div class="quad sw" data-quad="bl">
+                <button type="button" class="name stem-slot" data-stem-slot="bl" title="Choose BL sample">
+                  <span class="stem-slot-label" data-corner-name="bl">River</span>
+                  <span class="stem-caret" aria-hidden="true"></span>
+                </button>
+                <span class="pct" data-vol="bl">0%</span>
+              </div>
+              <div class="quad se" data-quad="br">
+                <button type="button" class="name stem-slot" data-stem-slot="br" title="Choose BR sample">
+                  <span class="stem-slot-label" data-corner-name="br">Atmos Hi Ho</span>
+                  <span class="stem-caret" aria-hidden="true"></span>
+                </button>
+                <span class="pct" data-vol="br">0%</span>
+              </div>
+              <div class="crosshair x"></div>
+              <div class="crosshair y"></div>
+              <div class="cursor" data-cursor></div>
+            </div>
+          </div>
+
+            <aside class="readout" data-ui-scroll>
+              <dl>
+                <div>
+                  <dt>Source</dt>
+                  <dd data-source>mouse</dd>
+                </div>
+                <div>
+                  <dt>X</dt>
+                  <dd data-x>0.50</dd>
+                </div>
+                <div>
+                  <dt>Y</dt>
+                  <dd data-y>0.50</dd>
+                </div>
+                <div>
+                  <dt>D-pad</dt>
+                  <dd data-dpad>—</dd>
+                </div>
+              </dl>
+            </aside>
+        </div>
+
+          <section class="ctrl">
+            <header class="fx-head">
+              <div>
+                <p class="kicker">DualSense</p>
+                <h2>Sticks, triggers, touchpad</h2>
+              </div>
+              <div class="ds-hid">
+                <span class="ds-hid-status" data-ds-status>Touchpad: —</span>
+                <button type="button" class="ds-connect" data-ds-connect>
+                  <span class="dot" aria-hidden="true"></span>
+                  <span data-ds-connect-label>Connect touchpad</span>
+                </button>
+              </div>
+            </header>
+            <div class="ctrl-grid">
+              <article class="ctrl-card ctrl-card-stick">
+                <p class="fx-btn">Left stick</p>
+                <div class="stick-body">
+                  <div class="stick-face">
+                    <div
+                      class="mini-stick is-interactive"
+                      data-stick="left"
+                      role="slider"
+                      aria-label="Left stick"
+                      title="Drag to move left stick"
+                    >
+                      <span class="mini-stick-dot" data-stick-dot="left" data-ls></span>
+                    </div>
+                    <dl class="stick-axes">
+                      <div class="stick-axis-x">
+                        <dt>X</dt>
+                        <dd data-stick-raw-x>0.00</dd>
+                      </div>
+                      <div class="stick-axis-y">
+                        <dt>Y</dt>
+                        <dd data-stick-raw-y>0.00</dd>
+                      </div>
+                    </dl>
+                  </div>
+                </div>
+              </article>
+              <article class="ctrl-card ctrl-card-stick">
+                <p class="fx-btn">Right stick</p>
+                <div class="stick-body">
+                  <div class="stick-face">
+                    <div
+                      class="mini-stick is-interactive"
+                      data-stick="right"
+                      role="slider"
+                      aria-label="Right stick"
+                      title="Drag to move right stick"
+                    >
+                      <span class="mini-stick-dot" data-stick-dot="right" data-rs></span>
+                    </div>
+                    <dl class="stick-axes">
+                      <div class="stick-axis-x">
+                        <dt>X</dt>
+                        <dd data-right-x>0.00</dd>
+                      </div>
+                      <div class="stick-axis-y">
+                        <dt>Y</dt>
+                        <dd data-right-y>0.00</dd>
+                      </div>
+                    </dl>
+                  </div>
+                </div>
+              </article>
+              <article class="ctrl-card ctrl-card-triggers">
+                <p class="fx-btn">Triggers</p>
+                <div class="trig">
+                  <label class="trig-row">
+                    <span title="Lowpass sweeps up">LT</span>
+                    <div class="trig-bar" aria-hidden="true"><span data-lt-bar></span></div>
+                    <input class="trig-slider" type="range" min="0" max="1" step="0.01" value="0" data-trigger="lt" aria-label="Left trigger, lowpass">
+                    <strong data-lt>0.00</strong>
+                  </label>
+                  <label class="trig-row">
+                    <span title="Highpass sweeps down">RT</span>
+                    <div class="trig-bar" aria-hidden="true"><span data-rt-bar></span></div>
+                    <input class="trig-slider" type="range" min="0" max="1" step="0.01" value="0" data-trigger="rt" aria-label="Right trigger, highpass">
+                    <strong data-rt>0.00</strong>
+                  </label>
+                </div>
+              </article>
+              <article class="ctrl-card ctrl-card-shoulders">
+                <p class="fx-btn">Shoulders</p>
+                <div class="trig">
+                  <div class="click-row">
+                    <button type="button" class="click-pill" data-l1 title="Hold for reverb">L1 reverb</button>
+                    <button type="button" class="click-pill" data-r1 title="Hold for delay">R1 delay</button>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </section>
+
+        <section class="fx" data-fx>
+          <header class="fx-head">
+            <div>
+              <p class="kicker">Face buttons</p>
+              <h2>Active plugin</h2>
+            </div>
+          </header>
+          <div class="fx-grid">
+            <article class="fx-card" data-fx-card="cross" data-on="true">
+              <p class="fx-btn">X</p>
+              <p class="fx-plugin-static" data-fx-name="cross" title="Press X to mute WAMs (keeps assignments)">WAM Off</p>
+            </article>
+            <article class="fx-card" data-fx-card="square">
+              <p class="fx-btn">Square</p>
+              <div class="fx-plugin-row">
+                <p class="fx-plugin-static" data-fx-name="square">kHs Comb Filter</p>
+                <button type="button" class="fx-plugin-menu" data-fx-plugin="square" aria-haspopup="listbox" aria-expanded="false" aria-label="Choose Square plugin" title="Choose Square WAM">
+                  <span class="stem-caret" aria-hidden="true"></span>
+                </button>
+              </div>
+            </article>
+            <article class="fx-card" data-fx-card="triangle">
+              <p class="fx-btn">Triangle</p>
+              <div class="fx-plugin-row">
+                <p class="fx-plugin-static" data-fx-name="triangle">kHs Formant Filter</p>
+                <button type="button" class="fx-plugin-menu" data-fx-plugin="triangle" aria-haspopup="listbox" aria-expanded="false" aria-label="Choose Triangle plugin" title="Choose Triangle WAM">
+                  <span class="stem-caret" aria-hidden="true"></span>
+                </button>
+              </div>
+            </article>
+            <article class="fx-card" data-fx-card="circle">
+              <p class="fx-btn">Circle</p>
+              <div class="fx-plugin-row">
+                <p class="fx-plugin-static" data-fx-name="circle">Crystallizer</p>
+                <button type="button" class="fx-plugin-menu" data-fx-plugin="circle" aria-haspopup="listbox" aria-expanded="false" aria-label="Choose Circle plugin" title="Choose Circle WAM">
+                  <span class="stem-caret" aria-hidden="true"></span>
+                </button>
+              </div>
+            </article>
+          </div>
+          <div class="fx-params" data-fx-params hidden></div>
+        </section>
+        </div>
+      </div>
+
+      <div data-panel="falling-blocks">
+        <section class="viz-stage">
+          <div class="viz-canvas-wrap">
+            <canvas data-falling-canvas aria-label="Falling Blocks playfield"></canvas>
+            <div class="falling-emit-dock">
+              <span class="falling-emit-scale" aria-hidden="true">
+                <span class="falling-emit-clump">
+                  <i></i><i></i><i></i><i></i>
+                </span>
+                <span class="falling-emit-stem"><i class="falling-emit-notch"></i></span>
+                <span class="falling-emit-single"></span>
+              </span>
+              <div role="button" tabindex="0" class="falling-pill falling-touch-emit" data-falling-touch-emit aria-pressed="false" aria-label="Press to emit atoms. Drag up for a clump, down for a single stream.">
+                <span class="falling-emit-face">
+                  <span class="falling-emit-fill" aria-hidden="true"></span>
+                  <svg class="falling-emit-chevron" viewBox="0 0 16 8" aria-hidden="true">
+                    <path d="M1.5 6.5 L8 1.5 L14.5 6.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span class="falling-emit-label">EMIT</span>
+                  <svg class="falling-emit-chevron" viewBox="0 0 16 8" aria-hidden="true">
+                    <path d="M1.5 1.5 L8 6.5 L14.5 1.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </div>
+            </div>
+            <p class="viz-error" data-falling-error hidden></p>
+              <dialog class="falling-about-dialog" data-falling-about-dialog aria-labelledby="falling-about-title" tabindex="-1">
+                <form method="dialog" class="falling-about-panel">
+                  <header class="falling-about-head">
+                    <div class="falling-about-title-wrap">
+                      <h2 id="falling-about-title">Falling Blocks</h2>
+                      <a class="falling-about-link" href="https://github.com/skinjester/Audible-Field" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="15 3 21 3 21 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="10" y1="14" x2="21" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>https://github.com/skinjester/Audible-Field</a>
+                    </div>
+                    <button type="button" class="falling-icon-btn falling-about-close" aria-label="Close">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M6 6 L18 18 M18 6 L6 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                      </svg>
+                    </button>
+                  </header>
+                  <div class="falling-about-body" data-ui-scroll>
+                  <section class="falling-about-how">
+                    <h3>How the field resonates</h3>
+                    <p>
+                      Each quadrant is mapped to a sound. Pour atoms into one quadrant or across several to mix them. Wider piles get louder and brighter. Taller piles increase reverb and decay.
+                    </p>
+                  </section>
+                  <section class="falling-about-how">
+                    <h3>Navigation</h3>
+                    <div class="falling-about-nav" data-falling-nav>
+                      <div class="tabs" role="tablist" aria-label="Navigation">
+                        <button type="button" role="tab" id="falling-nav-tab-mouse" class="falling-about-nav-tab is-mouse" aria-controls="falling-nav-mouse" aria-selected="true"><svg class="falling-about-nav-icon" viewBox="0 0 18 22" aria-hidden="true"><path d="M9 1.5c-4 0-6.5 2.7-6.5 7v5c0 4.1 2.5 7 6.5 7s6.5-2.9 6.5-7v-5c0-4.3-2.5-7-6.5-7Z"/><path d="M9 1.8v6.8M2.8 8.6h12.4"/><path d="M9 3.6v2.2"/></svg><span>Mouse</span></button>
+                        <button type="button" role="tab" id="falling-nav-tab-touch" class="falling-about-nav-tab is-touch" aria-controls="falling-nav-touch" aria-selected="false" tabindex="-1"><svg class="falling-about-nav-icon" viewBox="0 0 18 22" aria-hidden="true"><rect x="3" y="1.5" width="12" height="19" rx="2.2"/><path d="M7.2 4h3.6M7.5 17.8h3"/></svg><span>Touch</span></button>
+                        <button type="button" role="tab" id="falling-nav-tab-pad" class="falling-about-nav-tab is-gamepad" aria-controls="falling-nav-pad" aria-selected="false" tabindex="-1"><svg class="falling-about-nav-icon" viewBox="0 0 24 18" aria-hidden="true"><path d="M7.2 3.1h9.6c2.4 0 3.8 1.3 4.5 3.6l1.1 4.2c.7 2.7-.4 4.6-2.4 4.6-1.4 0-2.4-.8-3.4-2.4l-.8-1.2H8.2l-.8 1.2c-1 1.6-2 2.4-3.4 2.4-2 0-3.1-1.9-2.4-4.6l1.1-4.2c.7-2.3 2.1-3.6 4.5-3.6Z"/><path d="M7 6.3v4.2M4.9 8.4h4.2"/><circle cx="16.5" cy="7" r=".8" fill="currentColor" stroke="none"/><circle cx="19" cy="9.4" r=".8" fill="currentColor" stroke="none"/></svg><span>Gamepad</span></button>
+                      </div>
+                      <div role="tabpanel" id="falling-nav-mouse" aria-labelledby="falling-nav-tab-mouse">
+                        <div>
+                          <h4>Move</h4>
+                          <p>Drag with <span class="falling-about-mouse"><svg viewBox="0 0 14 20" aria-hidden="true"><path d="M7 1.2C3.6 1.2 1.2 3.6 1.2 7.2v6c0 3.4 2.4 5.6 5.8 5.6s5.8-2.2 5.8-5.6v-6C12.8 3.6 10.4 1.2 7 1.2z" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 1.6V8.2M1.6 8.2h10.8" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7.6 2.5C9.7 2.8 11.3 4.4 11.4 7.3H7.6z" fill="currentColor"/></svg>RMB</span> to move about.</p>
+                        </div>
+                        <div>
+                          <h4>Zoom</h4>
+                          <p>Scroll the mouse wheel to zoom in and out.</p>
+                        </div>
+                        <div>
+                          <h4>Rotate</h4>
+                          <p>Drag with the middle mouse button to turn the view. <kbd>Shift</kbd> + <span class="falling-about-mouse"><svg viewBox="0 0 14 20" aria-hidden="true"><path d="M7 1.2C3.6 1.2 1.2 3.6 1.2 7.2v6c0 3.4 2.4 5.6 5.8 5.6s5.8-2.2 5.8-5.6v-6C12.8 3.6 10.4 1.2 7 1.2z" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 1.6V8.2M1.6 8.2h10.8" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7.6 2.5C9.7 2.8 11.3 4.4 11.4 7.3H7.6z" fill="currentColor"/></svg>RMB</span> also turns it.</p>
+                        </div>
+                        <div>
+                          <h4>Emit and emitter size</h4>
+                          <p>Drag with <span class="falling-about-mouse"><svg viewBox="0 0 14 20" aria-hidden="true"><path d="M7 1.2C3.6 1.2 1.2 3.6 1.2 7.2v6c0 3.4 2.4 5.6 5.8 5.6s5.8-2.2 5.8-5.6v-6C12.8 3.6 10.4 1.2 7 1.2z" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 1.6V8.2M1.6 8.2h10.8" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M6.4 2.5C4.3 2.8 2.7 4.4 2.6 7.3h3.8z" fill="currentColor"/></svg>LMB</span> to emit with the largest emitter. Hold <kbd>Shift</kbd> while dragging to use the smallest emitter.</p>
+                        </div>
+                      </div>
+                      <div role="tabpanel" id="falling-nav-touch" aria-labelledby="falling-nav-tab-touch" hidden>
+                        <div>
+                          <h4>Move</h4>
+                          <p>Drag with one finger. The field slides under the emitter, which stays at the center of the screen.</p>
+                        </div>
+                        <div>
+                          <h4>Zoom</h4>
+                          <p>Pinch to zoom toward and away from the emitter.</p>
+                        </div>
+                        <div>
+                          <h4>Rotate</h4>
+                          <p>Twist two fingers to turn the field around the emitter.</p>
+                        </div>
+                        <div>
+                          <h4>Emit</h4>
+                          <p>Press the Emit button to pour atoms.</p>
+                        </div>
+                        <div>
+                          <h4>Emitter size</h4>
+                          <p>Drag the Emit button up or down to change the emitter size. You can adjust it while emitting.</p>
+                        </div>
+                        <div>
+                          <h4>Multitouch</h4>
+                          <p>Use these controls together. Emit while moving, rotating, or zooming the field, and select another material without stopping.</p>
+                        </div>
+                      </div>
+                      <div role="tabpanel" id="falling-nav-pad" aria-labelledby="falling-nav-tab-pad" hidden>
+                        <div>
+                          <h4>Move</h4>
+                          <p>The left stick or D-pad moves the emitter. At the edge of the view the plane scrolls.</p>
+                        </div>
+                        <div>
+                          <h4>Zoom</h4>
+                          <p>The right stick up and down zooms.</p>
+                        </div>
+                        <div>
+                          <h4>Rotate</h4>
+                          <p>The right stick left and right turns the view.</p>
+                        </div>
+                        <div>
+                          <h4>Emit and emitter size</h4>
+                          <p>Hold the right trigger to emit atoms. A light pull makes a single stream; pulling farther widens the emitter. The left trigger always makes a single stream. You can keep emitting while moving, rotating, or zooming.</p>
+                        </div>
+                        <div>
+                          <h4>Settings</h4>
+                          <p>Options opens and closes settings. With the menu open, the D-pad or left stick moves between options, and Cross confirms the highlighted one.</p>
+                        </div>
+                        <div>
+                          <h4>Readout</h4>
+                          <p>Create, the button to the left of the touchpad, opens and closes the frame and audio readout.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                  <section class="falling-about-how">
+                    <h3>Materials</h3>
+                    <p>
+                      You can choose different materials for the atoms you emit. Each material interacts with the others to change the shape of piles of atoms.
+                    </p>
+                    <div class="falling-about-materials">
+                      <div class="falling-about-material" data-material="block" style="--swatch: #c4624e">
+                        <h4><span class="falling-about-swatch" aria-hidden="true"></span>Block</h4>
+                        <p>A block sinks beneath whatever is underneath it. A pile of blocks will lose height as it sinks.</p>
+                      </div>
+                      <div class="falling-about-material" data-material="sand" style="--swatch: #e0a84a">
+                        <h4><span class="falling-about-swatch" aria-hidden="true"></span>Sand</h4>
+                        <p>Piles into gaps and has a tendency to spread out.</p>
+                      </div>
+                      <div class="falling-about-material" data-material="diffuse" style="--swatch: #f4d59a">
+                        <h4><span class="falling-about-swatch" aria-hidden="true"></span>Diffuse</h4>
+                        <p>Spreads and floats away.</p>
+                      </div>
+                      <div class="falling-about-material" data-material="erode" style="--swatch: #7a9e6a">
+                        <h4><span class="falling-about-swatch" aria-hidden="true"></span>Erode</h4>
+                        <p>Cuts through a pile.</p>
+                      </div>
+                    </div>
+                  </section>
+                  </div>
+                </form>
+              </dialog>
+              <div class="falling-topbar">
+                <div class="falling-topbar-start">
+                  <button type="button" class="falling-icon-btn falling-about" data-falling-about aria-label="About">?</button>
+                  <button type="button" class="falling-icon-btn falling-fps" data-falling-fps-toggle aria-expanded="false" aria-controls="falling-frame" aria-label="Frame and GPU stats">
+                    <svg viewBox="0 -960 960 960" aria-hidden="true">
+                      <path fill="currentColor" d="M120-120v-76l60-60v136h-60Zm165 0v-236l60-60v296h-60Zm165 0v-296l60 61v235h-60Zm165 0v-235l60-60v295h-60Zm165 0v-396l60-60v456h-60ZM120-356v-85l280-278 160 160 280-281v85L560-474 400-634 120-356Z"/>
+                    </svg>
+                  </button>
+                  <div class="falling-frame" id="falling-frame">
+                    <span class="falling-frame-stats" aria-live="polite">
+                      <span data-falling-fps>--</span> fps · <span data-falling-atoms>--</span> atoms · <span data-falling-tris>--</span> polys
+                    </span>
+                    <span class="falling-frame-gpu" data-falling-gpu></span>
+                    <div class="falling-frame-audio">
+                      <section class="falling-overall" aria-label="Audio">
+                        <div class="falling-overall-row">
+                          <span data-audio-line="splashes">Splashes</span>
+                          <span class="falling-audio-value" data-audio-value="splashes">—/s</span>
+                          <svg class="falling-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polygon class="falling-spark-fill" data-audio-spark-fill="splashes"></polygon><polyline data-audio-spark="splashes"></polyline></svg>
+                          <span class="falling-spark-max" data-audio-spark-max="splashes"></span>
+                        </div>
+                        <div class="falling-overall-row">
+                          <span data-audio-line="flow">Flow</span>
+                          <span class="falling-audio-value" data-audio-value="flow">— atoms/s</span>
+                          <svg class="falling-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polygon class="falling-spark-fill" data-audio-spark-fill="flow"></polygon><polyline data-audio-spark="flow"></polyline></svg>
+                          <span class="falling-spark-max" data-audio-spark-max="flow"></span>
+                        </div>
+                        <div class="falling-overall-row" data-audio-row="rising" hidden>
+                          <span data-audio-line="rising">Rising</span>
+                          <span class="falling-audio-value" data-audio-value="rising">—</span>
+                          <svg class="falling-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polygon class="falling-spark-fill" data-audio-spark-fill="rising"></polygon><polyline data-audio-spark="rising"></polyline></svg>
+                          <span class="falling-spark-max" data-audio-spark-max="rising"></span>
+                        </div>
+                        <div class="falling-voice-block">
+                          <span data-audio-line="voices">Audio voices</span>
+                          <span class="falling-audio-value" data-audio-value="voices">—</span>
+                          <svg class="falling-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polygon class="falling-spark-fill" data-audio-spark-fill="voices"></polygon><polyline data-audio-spark="voices"></polyline></svg>
+                          <span class="falling-spark-max" data-audio-spark-max="voices"></span>
+                          <span class="falling-voice-detail" data-audio-line="voice-detail" hidden></span>
+                        </div>
+                        <div class="falling-overall-wams">
+                          <span data-audio-line="wams">WAMs off</span>
+                        </div>
+                      </section>
+                      <div class="falling-quad-grid" data-audio-quads>
+                        <div class="falling-quad" data-audio-quad="tl"></div>
+                        <div class="falling-quad" data-audio-quad="tr"></div>
+                        <div class="falling-quad" data-audio-quad="bl"></div>
+                        <div class="falling-quad" data-audio-quad="br"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <button type="button" class="falling-yaw" data-falling-yaw aria-label="Drag left or right to rotate. Drag up or down to zoom. Double-click to reset the heading.">
+                  <svg viewBox="0 0 72 72" aria-hidden="true">
+                    <path class="falling-yaw-track" data-falling-yaw-track-back />
+                    <path class="falling-yaw-track" data-falling-yaw-track-front />
+                    <path class="falling-yaw-fill" data-falling-yaw-ring-back />
+                    <path class="falling-yaw-fill" data-falling-yaw-ring-front />
+                    <g class="falling-yaw-sphere-wrap" data-falling-yaw-sphere>
+                      <circle class="falling-yaw-wire" cx="36" cy="36" r="14" />
+                      <path class="falling-yaw-wire" data-falling-yaw-wire d="M 49.83 37.90 L 49.31 39.75 L 48.47 41.50 L 47.33 43.13 L 45.90 44.57 L 44.23 45.81 L 42.36 46.80 L 40.33 47.53 L 38.19 47.98 L 36.00 48.12 L 33.81 47.98 L 31.67 47.53 L 29.64 46.80 L 27.77 45.81 L 26.10 44.57 L 24.67 43.13 L 23.53 41.50 L 22.69 39.75 L 22.17 37.90 M 48.12 32.50 L 47.98 34.14 L 47.53 35.74 L 46.80 37.27 L 45.81 38.67 L 44.57 39.92 L 43.13 40.99 L 41.50 41.86 L 39.75 42.49 L 37.90 42.87 L 36.00 43.00 L 34.10 42.87 L 32.25 42.49 L 30.50 41.86 L 28.87 40.99 L 27.43 39.92 L 26.19 38.67 L 25.20 37.27 L 24.47 35.74 L 24.02 34.14 L 23.88 32.50 L 24.02 30.86 L 24.47 29.26 L 25.20 27.73 L 26.19 26.33 L 27.43 25.08 L 28.87 24.01 M 43.13 24.01 L 44.57 25.08 L 45.81 26.33 L 46.80 27.73 L 47.53 29.26 L 47.98 30.86 L 48.12 32.50 M 43.00 29.94 L 42.91 30.89 L 42.66 31.81 L 42.24 32.69 L 41.66 33.50 L 40.95 34.22 L 40.11 34.84 L 39.18 35.34 L 38.16 35.70 L 37.10 35.93 L 36.00 36.00 L 34.90 35.93 L 33.84 35.70 L 32.82 35.34 L 31.89 34.84 L 31.05 34.22 L 30.34 33.50 L 29.76 32.69 L 29.34 31.81 L 29.09 30.89 L 29.00 29.94 L 29.09 28.99 L 29.34 28.06 L 29.76 27.19 L 30.34 26.37 L 31.05 25.65 L 31.89 25.03 L 32.82 24.54 L 33.84 24.17 L 34.90 23.95 L 36.00 23.88 L 37.10 23.95 L 38.16 24.17 L 39.18 24.54 L 40.11 25.03 L 40.95 25.65 L 41.66 26.37 L 42.24 27.19 L 42.66 28.06 L 42.91 28.99 L 43.00 29.94 M 36.00 29.00 L 38.12 29.58 L 40.18 30.31 L 42.14 31.19 L 43.95 32.18 L 45.56 33.27 L 46.94 34.42 L 48.05 35.62 L 48.86 36.82 L 49.36 38.00 L 49.52 39.14 M 23.14 30.85 L 23.95 30.03 L 25.06 29.35 L 26.44 28.83 L 28.05 28.49 L 29.86 28.34 L 31.82 28.37 L 33.88 28.60 L 36.00 29.00 M 36.00 29.00 L 37.55 30.43 L 39.06 31.99 L 40.49 33.66 L 41.82 35.38 L 43.00 37.11 L 44.01 38.82 L 44.82 40.46 L 45.41 41.99 L 45.78 43.37 L 45.90 44.57 L 45.78 45.56 L 45.41 46.32 M 27.18 25.18 L 27.99 24.95 L 29.00 24.99 L 30.18 25.30 L 31.51 25.87 L 32.94 26.69 L 34.45 27.75 L 36.00 29.00 M 36.00 29.00 L 36.57 30.92 L 37.12 32.96 L 37.65 35.08 L 38.13 37.22 L 38.56 39.33 L 38.93 41.36 L 39.23 43.26 L 39.45 44.97 L 39.58 46.47 L 39.62 47.71 L 39.58 48.66 L 39.45 49.30 M 33.07 22.41 L 33.44 22.77 L 33.87 23.45 L 34.35 24.45 L 34.88 25.72 L 35.43 27.25 L 36.00 29.00 M 36.00 29.00 L 35.43 30.92 L 34.88 32.96 L 34.35 35.08 L 33.87 37.22 L 33.44 39.33 L 33.07 41.36 L 32.77 43.26 L 32.55 44.97 L 32.42 46.47 L 32.38 47.71 L 32.42 48.66 L 32.55 49.30 M 38.93 22.41 L 38.56 22.77 L 38.13 23.45 L 37.65 24.45 L 37.12 25.72 L 36.57 27.25 L 36.00 29.00 M 36.00 29.00 L 34.45 30.43 L 32.94 31.99 L 31.51 33.66 L 30.18 35.38 L 29.00 37.11 L 27.99 38.82 L 27.18 40.46 L 26.59 41.99 L 26.22 43.37 L 26.10 44.57 L 26.22 45.56 L 26.59 46.32 M 44.82 25.18 L 44.01 24.95 L 43.00 24.99 L 41.82 25.30 L 40.49 25.87 L 39.06 26.69 L 37.55 27.75 L 36.00 29.00 M 36.00 29.00 L 33.88 29.58 L 31.82 30.31 L 29.86 31.19 L 28.05 32.18 L 26.44 33.27 L 25.06 34.42 L 23.95 35.62 L 23.14 36.82 L 22.64 38.00 L 22.48 39.14 M 48.86 30.85 L 48.05 30.03 L 46.94 29.35 L 45.56 28.83 L 43.95 28.49 L 42.14 28.34 L 40.18 28.37 L 38.12 28.60 L 36.00 29.00" />
+                    </g>
+                    <line class="falling-yaw-tick" data-falling-yaw-tick-back x1="36" y1="13.92" x2="36" y2="9.59" />
+                    <line class="falling-yaw-tick" data-falling-yaw-tick-front />
+                  </svg>
+                </button>
+                <button type="button" class="falling-icon-btn falling-settings" data-falling-settings aria-label="Settings" aria-expanded="false" aria-controls="falling-settings-panel">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                    <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="falling-side">
+              <div class="falling-settings-panel" id="falling-settings-panel" data-falling-settings-panel hidden>
+                <span class="falling-pill" data-falling-trigger="lt" role="img" aria-label="Left trigger emits a stream">
+                  <span class="pad-glyph" aria-hidden="true">&#x0108;</span>
+                  Emit Stream
+                </span>
+                <span class="falling-pill" data-falling-trigger="rt" role="img" aria-label="Right trigger emits a clump">
+                  <span class="pad-glyph" aria-hidden="true">&#x0109;</span>
+                  Emit Clump
+                </span>
+                <div class="falling-rise-modes falling-yaw-pivot" data-falling-yaw-pivot>
+                  <div class="falling-rise-head">
+                    <p class="falling-rise-label" id="falling-yaw-label">Mouse turn</p>
+                    <button
+                      type="button"
+                      class="audio-switch falling-diffuse-reverb"
+                      data-falling-yaw-center
+                      role="switch"
+                      aria-checked="true"
+                      aria-labelledby="falling-yaw-label"
+                      title="Turn about the emitter"
+                    >
+                      <span class="audio-switch-name">Center</span>
+                      <span class="audio-switch-track" aria-hidden="true"><span class="audio-switch-knob"></span></span>
+                    </button>
+                  </div>
+                  <p class="falling-rise-hint" data-falling-yaw-hint>The plane turns about the center of the view.</p>
+                </div>
+                <div class="falling-rise-modes" data-falling-rise-modes>
+                  <div class="falling-rise-head">
+                    <p class="falling-rise-label" id="falling-rise-label">Diffusion algorithm</p>
+                    <button
+                      type="button"
+                      class="audio-switch falling-diffuse-reverb"
+                      data-falling-diffuse-reverb
+                      role="switch"
+                      aria-checked="false"
+                      aria-label="Reverb"
+                      title="Turn reverb on"
+                    >
+                      <span class="audio-switch-name">Reverb</span>
+                      <span class="audio-switch-track" aria-hidden="true"><span class="audio-switch-knob"></span></span>
+                    </button>
+                  </div>
+                  <div class="falling-rise-options" role="radiogroup" aria-labelledby="falling-rise-label">
+                    <label class="falling-rise-option" title="The piece keeps playing, thins as it shrinks, and drifts upward.">
+                      <input type="radio" name="falling-rise-mode" value="drift" />
+                      Drift
+                    </label>
+                    <label class="falling-rise-option" title="A bright scrap of the bed keeps playing at the pile's pitch, and fades as the atom shrinks.">
+                      <input type="radio" name="falling-rise-mode" value="loose" />
+                      Loose
+                    </label>
+                    <label class="falling-rise-option" title="One bright speck of the bed when the atom lifts off.">
+                      <input type="radio" name="falling-rise-mode" value="flake" />
+                      Flake
+                    </label>
+                    <label class="falling-rise-option" title="A lower strand of the bed is pulled free and thins as the atom shrinks.">
+                      <input type="radio" name="falling-rise-mode" value="thread" checked />
+                      Thread
+                    </label>
+                    <label class="falling-rise-option" title="The atom keeps dropping short specks of the bed on the way up.">
+                      <input type="radio" name="falling-rise-mode" value="shed" />
+                      Shed
+                    </label>
+                    <label class="falling-rise-option" title="A midrange band of the bed. The band rises with the cluster, on the same height that opens the reverb.">
+                      <input type="radio" name="falling-rise-mode" value="halo" />
+                      Halo
+                    </label>
+                  </div>
+                  <p class="falling-rise-hint" data-falling-rise-hint>A lower strand of the bed is pulled free and thins as the atom shrinks.</p>
+                </div>
+                <button type="button" class="falling-clear falling-face falling-pill" data-falling-clear title="Clear board">
+                  <span class="pad-glyph" aria-hidden="true">&#x0115;</span>
+                  <svg class="falling-clear-icon" viewBox="0 0 256 256" aria-hidden="true">
+                    <path fill="currentColor" d="M225,80.4,183.6,39a24,24,0,0,0-33.94,0L31,157.66a24,24,0,0,0,0,33.94l30.06,30.06A8,8,0,0,0,66.74,224H216a8,8,0,0,0,0-16h-84.7L225,114.34A24,24,0,0,0,225,80.4ZM108.68,208H70.05L42.33,180.28a8,8,0,0,1,0-11.31L96,115.31,148.69,168Zm105-105L160,156.69,107.31,104,161,50.34a8,8,0,0,1,11.32,0l41.38,41.38a8,8,0,0,1,0,11.31Z"/>
+                  </svg>
+                  Clear
+                </button>
+              </div>
+              </div>
+              <div class="falling-material-bar">
+                <div class="falling-material-row">
+                  <span class="pad-glyph" data-falling-shoulder="prev" role="img" aria-label="L2">&#x011A;</span>
+                  <div class="falling-palette" data-falling-palette role="group" aria-label="Materials"></div>
+                  <span class="pad-glyph" data-falling-shoulder="next" role="img" aria-label="R2">&#x011B;</span>
+                  <p class="falling-material-current">
+                    <span data-falling-material-name></span>
+                    <span class="falling-material-blurb" data-falling-material-blurb></span>
+                  </p>
+                </div>
+              </div>
+          </div>
+        </section>
+      </div>
+    </main>
+    <!-- Phones: the start screen. Its tap release is the gesture that lets the browser start sound. -->
+    <div class="start-screen" data-audio-gate hidden>
+      <div class="start-screen-inner">
+        <ul class="start-help" data-start-help aria-label="How to play">
+          <li>
+            <svg class="start-help-icon" viewBox="-15 -25 105.58 120.49" aria-hidden="true">
+              <path class="start-help-line" d="M19,36.67V12.75c0-2.64-1.32-4.39-4.74-4.39s-4.74,1.75-4.74,4.39V48.19" />
+              <path class="start-help-line" d="M36.19,40.51v-8.6c0-3.64-.85-6-4.08-6.28a5.85,5.85,0,0,0-4.08.83" />
+              <path class="start-help-line" d="M36.19,30.48c4.76-.8,6.27,1.81,6.53,6s.36,6.45.36,11.72c0,12.71-7,20-7,20" />
+              <path class="start-help-line" d="M9.08,33.37a14.56,14.56,0,0,0-3-.29c-2.38,0-4.16,1.88-4.52,5.24A76,76,0,0,0,1,46.36c-.1,5.93,1,8.57,3.32,12,3.24,4.68,10,10,10,10" />
+              <path class="start-help-line" d="M28.43,37.56v-8c0-3.64-1-6.9-4.73-6.9a10.83,10.83,0,0,0-4.73.83" />
+              <path class="start-help-mark" d="M3.29,11.93a10.93,10.93,0,1,1,21.86,0" />
+            </svg>
+            <span>Drag to move the field</span>
+          </li>
+          <li>
+            <svg class="start-help-icon" viewBox="-15 -25 105.58 120.49" aria-hidden="true">
+              <path class="start-help-line" d="M39,25.15C33.73,14.45,27.65,4,27.65,4,25.92.76,24.75.4,21.59,1.71s-3,3.66-2,6.1c0,0,5.63,11,10,19.78a122.69,122.69,0,0,1,5,11.82" />
+              <path class="start-help-line" d="M56.39,22.1l-3.92-7.69c-1.91-3.15-3.07-5.19-6.17-4.24-2.62.8-3.25,2.4-3.25,2.4" />
+              <path class="start-help-line" d="M52.55,12.84c4.1-2.56,6.48-.72,8.33,3s2.8,5.82,4.82,10.69C70.56,38.3,66.9,47.71,66.9,47.71" />
+              <path class="start-help-line" d="M34.66,39.41c.85,2-9.45-7.68-13.3-10-.94-.58-1.71-1-3.1-.14A4.14,4.14,0,0,0,16.15,33c0,.46-.1,1.34,1.52,2.76,3.73,3.27,13.27,13.19,16.11,15,4.78,3.08,13,5.43,13,5.43" />
+              <path class="start-help-line" d="M48.1,22.34l-3.64-7.12c-1.8-3.58-3.55-6-7-4.57A11.43,11.43,0,0,0,33,13.9" />
+              <line class="start-help-mark" x1="4.41" y1="9.09" x2="4.41" y2="27.18" />
+              <polyline class="start-help-mark" points="0.71 11.89 4.41 8.18 8.12 11.89" />
+              <polyline class="start-help-mark" points="8.12 24.38 4.41 28.09 0.71 24.38" />
+            </svg>
+            <span>Use two fingers to rotate or zoom</span>
+          </li>
+          <li>
+            <svg class="start-help-icon" viewBox="0 0 72 64" aria-hidden="true">
+              <ellipse cx="36" cy="50" rx="15" ry="4.4" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="1.25" />
+              <g class="start-help-atom" fill="currentColor">
+                <circle cx="36" cy="31" r="3.15" />
+                <circle cx="27.5" cy="36.5" r="2.35" />
+                <circle cx="45.2" cy="35.2" r="2.5" />
+                <circle cx="32.4" cy="22.2" r="1.7" />
+                <circle cx="42.2" cy="20.6" r="1.9" />
+                <circle cx="23.2" cy="29.4" r="1.4" />
+                <circle cx="49.6" cy="27.2" r="1.35" />
+                <circle cx="37.6" cy="15.6" r="1.15" />
+                <circle cx="31" cy="42.2" r="1.5" />
+                <circle cx="21.4" cy="37.6" r="1.05" />
+                <circle cx="50.4" cy="35.8" r="1.1" />
+              </g>
+            </svg>
+            <span>Press Emit to drop atoms</span>
+          </li>
+        </ul>
+        <div class="start-screen-copy">
+          <p class="start-screen-kicker">Audible Field</p>
+          <p class="start-screen-title" data-audio-gate-title>Tap to begin</p>
+          <p class="start-screen-note">A field of falling material, heard where it settles.</p>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/app.js?v=560"></script>
+  </body>
+</html>
